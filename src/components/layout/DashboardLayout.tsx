@@ -116,7 +116,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       >
                         <Button
                           variant={isActive ? "secondary" : "ghost"}
-                          className="w-full justify-start gap-2"
+                          className={cn(
+                            "w-full justify-start gap-2",
+                            isActive && "bg-primary/10 text-primary"
+                          )}
                         >
                           <item.icon className="h-4 w-4" />
                           <span className="truncate">{item.title}</span>

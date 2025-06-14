@@ -17,30 +17,32 @@ const statusColors = {
   completed: "secondary",
   in_progress: "default",
   failed: "destructive",
+  rejected: "destructive",
+  declined: "destructive",
 } as const;
 
 export default function ReviewsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Review History</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-3xl font-bold tracking-tight text-primary">Review History</h2>
+        <p className="text-sm text-muted-foreground">
           View and manage your code review history.
         </p>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="rounded-lg border bg-white">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Repository / File</TableHead>
-              <TableHead>PR #</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Issues</TableHead>
-              <TableHead>Reviewed</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-primary">Type</TableHead>
+              <TableHead className="text-primary">Repository / File</TableHead>
+              <TableHead className="text-primary">PR #</TableHead>
+              <TableHead className="text-primary">Status</TableHead>
+              <TableHead className="text-primary">Score</TableHead>
+              <TableHead className="text-primary">Issues</TableHead>
+              <TableHead className="text-primary">Reviewed</TableHead>
+              <TableHead className="text-primary text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -56,8 +58,18 @@ export default function ReviewsPage() {
                   {review.type === 'pull_request' ? review.prNumber : '-'}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={statusColors[review.status as keyof typeof statusColors] || 'default'}>
-                    {review.status.replace("_", " ")}
+                  <Badge
+                    className={
+                      review.status === 'completed'
+                        ? 'bg-green-100 text-green-800 border border-green-200'
+                        : review.status === 'in_progress'
+                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                        : (review.status === 'rejected' || review.status === 'declined')
+                        ? 'bg-red-100 text-red-800 border border-red-200'
+                        : 'bg-red-100 text-red-800 border border-red-200'
+                    }
+                  >
+                    {review.status.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                   </Badge>
                 </TableCell>
                 <TableCell>{review.score}</TableCell>

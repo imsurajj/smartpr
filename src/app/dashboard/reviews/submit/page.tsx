@@ -340,6 +340,8 @@ export default function SubmitReviewPage() {
 
   return (
     <div className="space-y-6">
+      {/* Demo Mode Tag */}
+      <span className="inline-block mb-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-semibold">Demo Mode: Using Sample Data</span>
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Submit Code Review</h2>
         <p className="text-muted-foreground">
@@ -348,7 +350,7 @@ export default function SubmitReviewPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 mb-2">
           <Select value={reviewMode} onValueChange={(value: any) => setReviewMode(value)}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select review mode" />
@@ -366,99 +368,107 @@ export default function SubmitReviewPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="code" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="code" className="flex items-center gap-2">
-              <Code className="h-4 w-4" />
-              Code Review
-            </TabsTrigger>
-            <TabsTrigger value="pr" className="flex items-center gap-2">
-              <GitPullRequest className="h-4 w-4" />
-              Pull Request
-            </TabsTrigger>
-          </TabsList>
+        <div className="mt-4">
+          <Tabs defaultValue="code" className="space-y-4">
+            <TabsList className="flex gap-2">
+              <TabsTrigger
+                value="code"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-primary/10 hover:text-primary"
+              >
+                <Code className="h-4 w-4" />
+                Code Review
+              </TabsTrigger>
+              <TabsTrigger
+                value="pr"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-primary/10 hover:text-primary"
+              >
+                <GitPullRequest className="h-4 w-4" />
+                Pull Request
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="code" className="space-y-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5" />
-                  Code Review
-                </CardTitle>
-                <CardDescription>
-                  Paste your code below for instant analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCodeSubmit} className="space-y-3">
-                  <div className="relative">
-                    <Textarea
-                      ref={textareaRef}
-                      placeholder="Paste your code here..."
-                      className="font-mono h-[200px] resize-none border-border focus:ring-0 focus:border-border bg-gray-50/50 focus-visible:ring-0 focus-visible:ring-offset-0"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                    />
-                    <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
-                      {code.split('\n').length} lines
+            <TabsContent value="code" className="space-y-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="h-5 w-5" />
+                    Code Review
+                  </CardTitle>
+                  <CardDescription>
+                    Paste your code below for instant analysis
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCodeSubmit} className="space-y-3">
+                    <div className="relative">
+                      <Textarea
+                        ref={textareaRef}
+                        placeholder="Paste your code here..."
+                        className="font-mono h-[160px] resize-none border-border focus:ring-0 focus:border-border bg-gray-50/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                      />
+                      <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+                        {code.split('\n').length} lines
+                      </div>
                     </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading || !code.trim()}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        Analyze Code
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading || !code.trim()}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <BarChart2 className="mr-2 h-4 w-4" />
+                          Analyze Code
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="pr" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pull Request Review</CardTitle>
-                <CardDescription>
-                  Enter a GitHub pull request URL for analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Input
-                    placeholder="https://github.com/owner/repo/pull/123"
-                    value={prUrl}
-                    onChange={(e) => setPrUrl(e.target.value)}
-                  />
-                  <Button
-                    className="w-full"
-                    onClick={handlePrSubmit}
-                    disabled={isLoading || !prUrl.trim()}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing PR...
-                      </>
-                    ) : (
-                      "Analyze Pull Request"
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="pr" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pull Request Review</CardTitle>
+                  <CardDescription>
+                    Enter a GitHub pull request URL for analysis
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="https://github.com/owner/repo/pull/123"
+                      value={prUrl}
+                      onChange={(e) => setPrUrl(e.target.value)}
+                    />
+                    <Button
+                      className="w-full"
+                      onClick={handlePrSubmit}
+                      disabled={isLoading || !prUrl.trim()}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Analyzing PR...
+                        </>
+                      ) : (
+                        "Analyze Pull Request"
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {isLoading && (
           <Card>

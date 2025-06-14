@@ -34,7 +34,10 @@ export function DashboardNavbar({
           </Link>
         </div>
         <nav className="flex items-center">
-          <Button variant="ghost" size="sm" asChild>
+          <Button
+            asChild
+            className="border border-primary bg-transparent text-primary rounded-none px-4 py-2 font-semibold transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
             <Link href="/" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Back to Home

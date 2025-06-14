@@ -53,7 +53,7 @@ export const reviewHistory = [
     repository: 'backend/api',
     prNumber: '#789',
     score: 88,
-    status: 'completed',
+    status: 'rejected',
     issues: { errors: 1, warnings: 3, suggestions: 6 }
   },
   {
@@ -81,7 +81,7 @@ export const reviewHistory = [
     type: 'code_review',
     fileName: 'DataSync.ts',
     score: 85,
-    status: 'completed',
+    status: 'declined',
     issues: { errors: 2, warnings: 4, suggestions: 7 }
   },
   {
@@ -148,7 +148,7 @@ export const reviewHistory = [
     repository: 'frontend/dashboard',
     prNumber: '#890',
     score: 79,
-    status: 'completed',
+    status: 'declined',
     issues: { errors: 3, warnings: 5, suggestions: 4 }
   },
   {
@@ -176,7 +176,7 @@ export const reviewHistory = [
     type: 'code_review',
     fileName: 'SecurityMiddleware.ts',
     score: 75,
-    status: 'completed',
+    status: 'rejected',
     issues: { errors: 4, warnings: 6, suggestions: 3 }
   },
   {
