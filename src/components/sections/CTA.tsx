@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export function CTA() {
   return (
-    <section className="py-16 sm:py-24">
+    <section className="py-8 sm:py-16">
       <div className="container mx-auto px-4">
         <div className="relative isolate overflow-hidden rounded-3xl bg-primary/5 px-6 py-24 text-center sm:px-16">
           <div className="mx-auto max-w-2xl">
@@ -15,7 +15,7 @@ export function CTA() {
               <span className="block text-primary mt-1">code review process?</span>
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-              Join developers who are using SmartPR to write better code,
+              Join developers who are using Smart<span className="text-primary">PR</span> to write better code,
               catch bugs early, and maintain high code quality standards.
             </p>
             <div className="mt-10">

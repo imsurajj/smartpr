@@ -30,7 +30,7 @@ export function DashboardNavbar({
             </Button>
           )}
           <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="text-xl font-bold">SmartPR</span>
+            <span className="text-xl font-bold">Smart<span className="text-primary">PR</span></span>
           </Link>
         </div>
         <nav className="flex items-center">

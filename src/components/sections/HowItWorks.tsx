@@ -36,7 +36,7 @@ export function HowItWorks() {
             How It Works
           </h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Get started with SmartPR in just a few simple steps. Our AI-powered platform
+            Get started with Smart<span className="text-primary">PR</span> in just a few simple steps. Our AI-powered platform
             makes code review effortless and efficient.
           </p>
         </AnimatedSection>

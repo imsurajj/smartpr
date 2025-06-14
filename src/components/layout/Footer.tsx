@@ -48,7 +48,7 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-4">
             <Link href="/" className="text-xl font-bold">
-              SmartPR
+              Smart<span className="text-primary">PR</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               AI-powered code review assistant for modern development teams.
@@ -118,7 +118,7 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t pt-8">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} SmartPR. All rights reserved.
+            &copy; {new Date().getFullYear()} Smart<span className="text-primary">PR</span>. All rights reserved.
           </p>
         </div>
       </div>
