@@ -13,14 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { reviewHistory } from "@/lib/demo-data";
 
-const statusColors = {
-  completed: "secondary",
-  in_progress: "default",
-  failed: "destructive",
-  rejected: "destructive",
-  declined: "destructive",
-} as const;
-
 export default function ReviewsPage() {
   return (
     <div className="space-y-8">

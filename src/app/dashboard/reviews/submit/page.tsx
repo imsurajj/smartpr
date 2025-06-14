@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { githubService } from "@/lib/github";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, GitPullRequest, Code, AlertCircle, CheckCircle, BarChart, ArrowDown, Copy, AlertTriangle, Lightbulb, Zap, Shield, FileText, FileCode, BarChart2 } from "lucide-react";
+import { Loader2, GitPullRequest, Code, AlertCircle, CheckCircle, BarChart, Copy, AlertTriangle, Lightbulb, Zap, Shield, FileText, FileCode, BarChart2 } from "lucide-react";
 import {
   Tabs,
   TabsContent,
@@ -29,19 +28,84 @@ import {
 } from "@/components/ui/select";
 import { generateReview } from "@/lib/demo-data";
 import { Progress } from "@/components/ui/progress";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+
+interface Issue {
+  severity: "error" | "warning" | "suggestion";
+  type: string;
+  description: string;
+  line?: number;
+  suggestions?: string[];
+  codeExample?: string;
+}
+
+interface ReviewMetrics {
+  complexity: number;
+  maintainability: number;
+  testCoverage: number;
+  duplicateCode: number;
+}
+
+interface Suggestions {
+  performance: string[];
+  security: string[];
+  bestPractices: string[];
+}
+
+interface CodeReview {
+  summary: string;
+  score: number;
+  metrics: ReviewMetrics;
+  issues: Issue[];
+  suggestions: Suggestions;
+}
+
+interface PrSummary {
+  totalFiles: number;
+  totalIssues: number;
+  avgScore: number;
+}
+
+interface FileDetails {
+  filename: string;
+  content: string;
+  patch: string;
+}
+
+interface FileReview {
+  filename: string;
+  content?: string;
+  patch?: string;
+  review: CodeReview;
+}
+
+interface CodeReviewResult {
+  type: 'code';
+  review: CodeReview;
+}
+
+interface PrReviewResult {
+  type: 'pr';
+  reviews: FileReview[];
+  summary: PrSummary;
+}
+
+type ReviewResult = CodeReviewResult | PrReviewResult;
+
+interface ScoreAndVariant {
+  score: number;
+  variant: "default" | "secondary" | "destructive" | "outline" | undefined;
+}
 
 export default function SubmitReviewPage() {
   const [prUrl, setPrUrl] = useState("");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ReviewResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reviewMode, setReviewMode] = useState<"quick" | "thorough" | "security">("quick");
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [prFiles, setPrFiles] = useState<Array<any>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -82,22 +146,21 @@ export default function SubmitReviewPage() {
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setPrFiles([]);
 
     try {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Demo PR review data
-      const demoFiles = [
+      const demoFiles: FileDetails[] = [
         { filename: "src/components/Button.tsx", content: "// Demo content", patch: "Demo patch" },
         { filename: "src/utils/helpers.ts", content: "// Demo content", patch: "Demo patch" }
       ];
       
-      setPrFiles(demoFiles);
-      
-      const reviews = demoFiles.map(file => ({
+      const reviews: FileReview[] = demoFiles.map(file => ({
         filename: file.filename,
+        content: file.content,
+        patch: file.patch,
         review: generateReview(file.content, reviewMode)
       }));
 
@@ -106,7 +169,7 @@ export default function SubmitReviewPage() {
         reviews,
         summary: generatePrSummary(reviews),
       });
-    } catch (err) {
+    } catch (_err: unknown) {
       setError("Failed to analyze pull request. Please try again.");
     } finally {
       setIsLoading(false);
@@ -133,14 +196,14 @@ export default function SubmitReviewPage() {
         type: 'code',
         review: reviewResult,
       });
-    } catch (err) {
+    } catch (_err: unknown) {
       setError("Failed to analyze code. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const generatePrSummary = (reviews: any[]) => {
+  const generatePrSummary = (reviews: FileReview[]) => {
     const totalIssues = reviews.reduce((sum, r) => sum + r.review.issues.length, 0);
     const avgScore = reviews.reduce((sum, r) => sum + r.review.score, 0) / reviews.length;
     return {
@@ -150,10 +213,10 @@ export default function SubmitReviewPage() {
     };
   };
 
-  const renderMetrics = (review: any) => (
+  const renderMetrics = (review: CodeReview) => (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {Object.entries(review.metrics).map(([key, value]: [string, any]) => (
+        {Object.entries(review.metrics).map(([key, value]: [string, number]) => (
           <Card key={key} className="relative overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm capitalize flex items-center gap-2">
@@ -213,15 +276,15 @@ export default function SubmitReviewPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 text-destructive" />
-                <span className="font-medium">Errors:</span> {review.issues.filter((i: any) => i.severity === "error").length}
+                <span className="font-medium">Errors:</span> {review.issues.filter((i: Issue) => i.severity === "error").length}
               </div>
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                <span className="font-medium">Warnings:</span> {review.issues.filter((i: any) => i.severity === "warning").length}
+                <span className="font-medium">Warnings:</span> {review.issues.filter((i: Issue) => i.severity === "warning").length}
               </div>
               <div className="flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">Suggestions:</span> {review.issues.filter((i: any) => i.severity === "suggestion").length}
+                <span className="font-medium">Suggestions:</span> {review.issues.filter((i: Issue) => i.severity === "suggestion").length}
               </div>
             </div>
           </CardContent>
@@ -230,9 +293,9 @@ export default function SubmitReviewPage() {
     </div>
   );
 
-  const renderIssues = (issues: any[]) => (
+  const renderIssues = (issues: Issue[]) => (
     <div className="space-y-4">
-      {issues.map((issue: any, index: number) => (
+      {issues.map((issue: Issue, index: number) => (
         <Card key={index} className={cn(
           "border-l-4",
           issue.severity === "error" ? "border-l-destructive" :
@@ -288,7 +351,7 @@ export default function SubmitReviewPage() {
     </div>
   );
 
-  const renderSuggestions = (review: any) => (
+  const renderSuggestions = (review: CodeReview) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card>
         <CardHeader className="pb-2">
@@ -337,6 +400,28 @@ export default function SubmitReviewPage() {
       </Card>
     </div>
   );
+
+  // Helper function for badge variant and score
+  const getScoreAndVariant = (result: ReviewResult): ScoreAndVariant => {
+    if (result.type === "pr") {
+      const score = result.summary.avgScore;
+      const variant: "default" | "secondary" | "destructive" | "outline" | undefined = score >= 90 ? "default" : score >= 80 ? "secondary" : score >= 70 ? "outline" : undefined;
+      return { score, variant };
+    } else { // result.type === "code"
+      const score = result.review.score;
+      const variant: "default" | "secondary" | "destructive" | "outline" | undefined = score >= 90 ? "default" : score >= 80 ? "secondary" : score >= 70 ? "outline" : undefined;
+      return { score, variant };
+    }
+  };
+
+  // Helper function for card description
+  const getCardDescription = (result: ReviewResult) => {
+    if (result.type === "pr") {
+      return `Analyzed ${result.summary.totalFiles} files and found ${result.summary.totalIssues} issues`;
+    } else { // result.type === "code"
+      return result.review.summary;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -513,32 +598,15 @@ export default function SubmitReviewPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle>Analysis Results</CardTitle>
                   <Badge
-                    variant={
-                      result.type === "pr"
-                        ? result.summary.avgScore >= 90
-                          ? "default"
-                          : result.summary.avgScore >= 80
-                          ? "secondary"
-                          : "destructive"
-                        : result.review.score >= 90
-                        ? "default"
-                        : result.review.score >= 80
-                        ? "secondary"
-                        : "destructive"
-                    }
+                    variant={getScoreAndVariant(result).variant as "default" | "secondary" | "destructive" | "outline" | undefined}
                     className="h-6"
                   >
                     Score:{" "}
-                    {result.type === "pr"
-                      ? result.summary.avgScore
-                      : result.review.score}
-                    %
+                    {getScoreAndVariant(result).score}%
                   </Badge>
                 </div>
                 <CardDescription>
-                  {result.type === "pr"
-                    ? `Analyzed ${result.summary.totalFiles} files and found ${result.summary.totalIssues} issues`
-                    : result.review.summary}
+                  {getCardDescription(result)}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
@@ -601,7 +669,7 @@ export default function SubmitReviewPage() {
                         </CardContent>
                       </Card>
                     </div>
-                    {result.reviews.map((fileReview: any, index: number) => (
+                    {result.reviews.map((fileReview: FileReview, index: number) => (
                       <div key={index} className="space-y-6 pt-6 border-t first:border-t-0 first:pt-0">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold flex items-center gap-2">

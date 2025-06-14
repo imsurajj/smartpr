@@ -42,7 +42,7 @@ export function HowItWorks() {
         </AnimatedSection>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          {steps.map((step, index) => (
+          {steps.map((step, _index) => (
             <AnimatedSection key={step.title} className="h-full">
               <Card className="h-full">
                 <CardContent className="pt-6">

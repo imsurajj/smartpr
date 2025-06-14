@@ -9,6 +9,12 @@ interface PullRequestDetails {
   }>;
 }
 
+interface GitHubFileApiResponse {
+  filename: string;
+  contents_url: string;
+  patch?: string;
+}
+
 export class GitHubService {
   private static instance: GitHubService;
   private baseUrl = 'https://api.github.com';
@@ -57,7 +63,7 @@ export class GitHubService {
     
     // Get content for each file
     const files = await Promise.all(
-      filesData.map(async (file: any) => {
+      filesData.map(async (file: GitHubFileApiResponse) => {
         const contentResponse = await fetch(file.contents_url, {
           headers: {
             'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,

@@ -15,7 +15,6 @@ import {
   GitPullRequest, 
   AlertCircle, 
   Lightbulb, 
-  CheckCircle2,
   XCircle,
   AlertTriangle,
   TrendingUp,
@@ -42,7 +41,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Welcome back!</h1>
             <p className="text-muted-foreground">
-              Here's what's happening with your code reviews today.
+              Here&apos;s what&apos;s happening with your code reviews today.
             </p>
           </div>
           <div className="flex gap-2">
@@ -67,7 +66,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                You've completed <span className="font-medium text-foreground">{todayReviews} reviews</span> today, with an average score of <span className="font-medium text-foreground">{averageScore}%</span>.
+                You&apos;ve completed <span className="font-medium text-foreground">{todayReviews} reviews</span> today, with an average score of <span className="font-medium text-foreground">{averageScore}%</span>.
               </p>
             </CardContent>
           </Card>
