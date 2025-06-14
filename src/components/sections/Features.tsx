@@ -41,7 +41,7 @@ export function Features() {
     <section
       id="features"
       ref={ref}
-      className="container mx-auto px-4 py-24 sm:py-32"
+      className="container mx-auto px-4 py-14 sm:py-32"
     >
       <div className={cn(
         "mx-auto max-w-2xl text-center transition-all duration-700 ease-out",

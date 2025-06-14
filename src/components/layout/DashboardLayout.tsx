@@ -1,29 +1,55 @@
 "use client";
 
-import { DashboardNavbar } from "@/components/layout/DashboardNavbar";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { BarChart, FileText, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { BarChart, FileText, Settings, GitPullRequest } from "lucide-react";
+import { DashboardNavbar } from "@/components/layout/DashboardNavbar";
 
 const sidebarItems = [
   {
-    title: "Overview",
-    href: "/dashboard",
-    icon: BarChart,
+    category: "Main",
+    items: [
+      {
+        title: "Overview",
+        href: "/dashboard",
+        icon: BarChart,
+      },
+      {
+        title: "Reviews",
+        href: "/dashboard/reviews",
+        icon: FileText,
+      },
+      {
+        title: "Submit Review",
+        href: "/dashboard/reviews/submit",
+        icon: GitPullRequest,
+      },
+    ]
   },
   {
-    title: "Reviews",
-    href: "/dashboard/reviews",
-    icon: FileText,
+    category: "Settings",
+    items: [
+      {
+        title: "Settings",
+        href: "/dashboard/settings",
+        icon: Settings,
+      },
+    ]
   },
   {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
+    category: "Resources",
+    items: [
+      {
+        title: "GitHub",
+        href: "https://github.com/imsurajj/smartpr",
+        icon: GitPullRequest,
+        external: true,
+      },
+    ]
+  }
 ];
 
 interface DashboardLayoutProps {
@@ -47,6 +73,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <DashboardNavbar 
@@ -67,22 +99,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             "h-full overflow-hidden transition-all duration-300",
             isMobile ? (sidebarOpen ? "opacity-100 w-64" : "opacity-0 w-0") : "opacity-100 w-64"
           )}>
-            <div className="flex h-full flex-col gap-2 p-4">
-              {sidebarItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link key={item.href} href={item.href}>
-                    <Button
-                      variant={isActive ? "secondary" : "ghost"}
-                      className="w-full justify-start gap-2"
-                      onClick={() => isMobile && setSidebarOpen(false)}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span className="truncate">{item.title}</span>
-                    </Button>
-                  </Link>
-                );
-              })}
+            <div className="flex h-full flex-col gap-4 p-4">
+              {sidebarItems.map((category, index) => (
+                <div key={index} className="flex flex-col gap-1.5">
+                  <h3 className="px-2 text-sm font-medium text-gray-500/80 uppercase tracking-wider">
+                    {category.category}
+                  </h3>
+                  {category.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link 
+                        key={item.href} 
+                        href={item.href}
+                        {...(item.external ? { target: "_blank" } : {})}
+                        onClick={handleLinkClick}
+                      >
+                        <Button
+                          variant={isActive ? "secondary" : "ghost"}
+                          className="w-full justify-start gap-2"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="truncate">{item.title}</span>
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           </div>
         </aside>

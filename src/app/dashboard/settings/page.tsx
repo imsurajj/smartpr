@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,123 +18,161 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function SettingsPage() {
+  const [githubToken, setGithubToken] = useState("");
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [autoReview, setAutoReview] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load settings from localStorage
+    const settings = localStorage.getItem("smartprr-settings");
+    if (settings) {
+      const parsed = JSON.parse(settings);
+      setGithubToken(parsed.githubToken || "");
+      setOpenaiKey(parsed.openaiKey || "");
+      setAutoReview(parsed.autoReview || false);
+    }
+  }, []);
+
+  const handleSave = () => {
+    try {
+      const settings = {
+        githubToken,
+        openaiKey,
+        autoReview,
+      };
+      localStorage.setItem("smartprr-settings", JSON.stringify(settings));
+      
+      // Update environment variables
+      if (typeof window !== "undefined") {
+        (window as any).process = (window as any).process || {};
+        (window as any).process.env = (window as any).process.env || {};
+        (window as any).process.env.NEXT_PUBLIC_GITHUB_TOKEN = githubToken;
+        (window as any).process.env.NEXT_PUBLIC_OPENAI_KEY = openaiKey;
+      }
+
+      setSaved(true);
+      setError(null);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setError("Failed to save settings");
+      setSaved(false);
+    }
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences.
+          Manage your API keys and application settings.
         </p>
       </div>
 
-      <div className="grid gap-6">
-        {/* GitHub Integration */}
-        <Card>
-          <CardHeader>
-            <CardTitle>GitHub Integration</CardTitle>
-            <CardDescription>
-              Configure your GitHub account and repository access.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>GitHub Token</Label>
-              <Input type="password" value="••••••••••••••••" disabled />
-              <Button variant="outline" size="sm">
-                Update Token
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <Label>Default Repository</Label>
-              <Select defaultValue="all">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select repository" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All repositories</SelectItem>
-                  <SelectItem value="user/repo1">user/repo1</SelectItem>
-                  <SelectItem value="org/project">org/project</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="api" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="api">API Configuration</TabsTrigger>
+          <TabsTrigger value="github">GitHub Integration</TabsTrigger>
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+        </TabsList>
 
-        {/* Review Preferences */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Review Preferences</CardTitle>
-            <CardDescription>
-              Customize how SmartPR reviews your code.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Automatic Reviews</Label>
+        <TabsContent value="api">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Provider Settings</CardTitle>
+              <CardDescription>
+                Configure your AI provider and API keys.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>OpenAI API Key</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your OpenAI API key"
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                />
                 <p className="text-sm text-muted-foreground">
-                  Automatically review new pull requests
+                  Currently using demo mode. API key not required.
                 </p>
               </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Review Comments</Label>
-                <p className="text-sm text-muted-foreground">
-                  Post review comments directly on GitHub
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="space-y-2">
-              <Label>Review Depth</Label>
-              <Select defaultValue="balanced">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select review depth" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quick">Quick Review</SelectItem>
-                  <SelectItem value="balanced">Balanced</SelectItem>
-                  <SelectItem value="thorough">Thorough Analysis</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>
-              Configure how you want to receive notifications.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Email Notifications</Label>
+        <TabsContent value="github">
+          <Card>
+            <CardHeader>
+              <CardTitle>GitHub Integration</CardTitle>
+              <CardDescription>
+                Configure your GitHub access token for PR reviews.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>GitHub Personal Access Token</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your GitHub token"
+                  value={githubToken}
+                  onChange={(e) => setGithubToken(e.target.value)}
+                />
                 <p className="text-sm text-muted-foreground">
-                  Receive review summaries via email
+                  Required scopes: repo, pull_requests
                 </p>
               </div>
-              <Switch />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Browser Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Show desktop notifications
-                </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="preferences">
+          <Card>
+            <CardHeader>
+              <CardTitle>Review Preferences</CardTitle>
+              <CardDescription>
+                Configure how SmartPR behaves during code reviews.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Automatic PR Review</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically review PRs when they are opened or updated
+                  </p>
+                </div>
+                <Switch
+                  checked={autoReview}
+                  onCheckedChange={setAutoReview}
+                />
               </div>
-              <Switch defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <div className="flex items-center gap-4">
+        <Button onClick={handleSave}>Save Settings</Button>
+        {saved && (
+          <div className="flex items-center gap-2 text-green-500">
+            <CheckCircle className="h-5 w-5" />
+            Settings saved successfully
+          </div>
+        )}
+        {error && (
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

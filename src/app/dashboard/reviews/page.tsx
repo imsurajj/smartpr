@@ -11,29 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-
-// Mock data - replace with real data later
-const reviews = [
-  {
-    id: 1,
-    repo: "user/repo",
-    prNumber: "123",
-    status: "completed",
-    issues: 5,
-    suggestions: 3,
-    reviewedAt: new Date(2024, 1, 15),
-  },
-  {
-    id: 2,
-    repo: "org/project",
-    prNumber: "456",
-    status: "in_progress",
-    issues: 0,
-    suggestions: 0,
-    reviewedAt: new Date(2024, 1, 14),
-  },
-  // Add more mock reviews as needed
-];
+import { reviewHistory } from "@/lib/demo-data";
 
 const statusColors = {
   completed: "secondary",
@@ -55,29 +33,39 @@ export default function ReviewsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Repository</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Repository / File</TableHead>
               <TableHead>PR #</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Score</TableHead>
               <TableHead>Issues</TableHead>
-              <TableHead>Suggestions</TableHead>
               <TableHead>Reviewed</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reviews.map((review) => (
+            {reviewHistory.map((review) => (
               <TableRow key={review.id}>
-                <TableCell className="font-medium">{review.repo}</TableCell>
-                <TableCell>{review.prNumber}</TableCell>
+                <TableCell className="font-medium">
+                  {review.type === 'pull_request' ? 'Pull Request' : 'Code Review'}
+                </TableCell>
                 <TableCell>
-                  <Badge variant={statusColors[review.status as keyof typeof statusColors]}>
+                  {review.type === 'pull_request' ? review.repository : review.fileName}
+                </TableCell>
+                <TableCell>
+                  {review.type === 'pull_request' ? review.prNumber : '-'}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusColors[review.status as keyof typeof statusColors] || 'default'}>
                     {review.status.replace("_", " ")}
                   </Badge>
                 </TableCell>
-                <TableCell>{review.issues}</TableCell>
-                <TableCell>{review.suggestions}</TableCell>
+                <TableCell>{review.score}</TableCell>
                 <TableCell>
-                  {formatDistanceToNow(review.reviewedAt, { addSuffix: true })}
+                  {review.issues.errors + review.issues.warnings + review.issues.suggestions}
+                </TableCell>
+                <TableCell>
+                  {formatDistanceToNow(review.date, { addSuffix: true })}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm">
