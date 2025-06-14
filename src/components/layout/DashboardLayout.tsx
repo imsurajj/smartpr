@@ -5,10 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { BarChart, FileText, Settings, GitPullRequest } from "lucide-react";
+import { BarChart, FileText, Settings, GitPullRequest, LucideProps } from "lucide-react";
 import { DashboardNavbar } from "@/components/layout/DashboardNavbar";
 
-const sidebarItems = [
+interface SidebarItem {
+  title: string;
+  href: string;
+  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+}
+
+interface ExternalSidebarItem extends SidebarItem {
+  external: true;
+}
+
+const sidebarItems: Array<{ category: string; items: (SidebarItem | ExternalSidebarItem)[] }> = [
   {
     category: "Main",
     items: [
@@ -107,25 +117,44 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </h3>
                   {category.items.map((item) => {
                     const isActive = pathname === item.href;
-                    return (
-                      <Link 
-                        key={item.href} 
-                        href={item.href}
-                        {...(item.external ? { target: "_blank" } : {})}
-                        onClick={handleLinkClick}
+                    const isExternal = 'external' in item && item.external;
+
+                    const linkContent = (
+                      <Button
+                        variant={isActive ? "secondary" : "ghost"}
+                        className={cn(
+                          "w-full justify-start gap-2",
+                          isActive && "bg-primary/10 text-primary"
+                        )}
                       >
-                        <Button
-                          variant={isActive ? "secondary" : "ghost"}
-                          className={cn(
-                            "w-full justify-start gap-2",
-                            isActive && "bg-primary/10 text-primary"
-                          )}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span className="truncate">{item.title}</span>
-                        </Button>
-                      </Link>
+                        <item.icon className="h-4 w-4" />
+                        <span className="truncate">{item.title}</span>
+                      </Button>
                     );
+
+                    if (isExternal) {
+                      return (
+                        <a 
+                          key={item.href} 
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={handleLinkClick}
+                        >
+                          {linkContent}
+                        </a>
+                      );
+                    } else {
+                      return (
+                        <Link 
+                          key={item.href} 
+                          href={item.href}
+                          onClick={handleLinkClick}
+                        >
+                          {linkContent}
+                        </Link>
+                      );
+                    }
                   })}
                 </div>
               ))}
