@@ -47,13 +47,19 @@ const recentActivity = [
   },
 ];
 
+const statusColors = {
+  review_completed: "secondary",
+  review_started: "default",
+  issue_fixed: "outline",
+} as const;
+
 export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
         <p className="text-muted-foreground">
-          Welcome back! Here's what's happening with your code reviews.
+          Welcome back! Here&apos;s what&apos;s happening with your code reviews.
         </p>
       </div>
 
@@ -134,13 +140,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Badge
-                    variant={
-                      activity.type === "review_completed"
-                        ? "success"
-                        : activity.type === "review_started"
-                        ? "warning"
-                        : "default"
-                    }
+                    variant={statusColors[activity.type as keyof typeof statusColors]}
                   >
                     {activity.type.replace("_", " ")}
                   </Badge>

@@ -36,8 +36,8 @@ const reviews = [
 ];
 
 const statusColors = {
-  completed: "success",
-  in_progress: "warning",
+  completed: "secondary",
+  in_progress: "default",
   failed: "destructive",
 } as const;
 

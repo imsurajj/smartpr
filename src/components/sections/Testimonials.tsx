@@ -16,7 +16,7 @@ const testimonials = [
   },
   {
     content:
-      "The integration with GitHub is seamless, and the AI suggestions are incredibly accurate. It's like having a senior developer reviewing your code 24/7.",
+      "The integration with GitHub is seamless, and the AI suggestions are incredibly accurate. It&apos;s like having a senior developer reviewing your code 24/7.",
     author: {
       name: "Michael Rodriguez",
       role: "Senior Engineer",
@@ -47,7 +47,7 @@ export function Testimonials() {
           Loved by developers
         </p>
         <p className="mt-6 text-lg leading-8 text-muted-foreground">
-          See what developers are saying about SmartPR's AI-powered code review
+          See what developers are saying about SmartPR&apos;s AI-powered code review
           assistant.
         </p>
       </div>
@@ -60,7 +60,7 @@ export function Testimonials() {
           >
             <div className="mb-8">
               <p className="text-lg text-card-foreground">
-                "{testimonial.content}"
+                &ldquo;{testimonial.content}&rdquo;
               </p>
             </div>
             <div className="flex items-center gap-4">
